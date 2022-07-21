@@ -1,32 +1,44 @@
 package ru.hogwarts.school.service;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.repositories.FacultyRepository;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 @Service
+
 public class FacultyService {
-    private Map<Long, Faculty> facultyMap = new HashMap<>();
-    private long generatedFacultyId = 0;
-    public Faculty createFaculty (Faculty faculty){
-        facultyMap.put(generatedFacultyId, faculty);
-        generatedFacultyId ++;
-        return faculty;
+    public FacultyService(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
     }
-    public Faculty getFaculty (Long facultyId){
-        return facultyMap.get(facultyId);
+
+    private final FacultyRepository facultyRepository;
+
+
+    public Faculty addFaculty (Faculty faculty){
+        return facultyRepository.save(faculty);
+
     }
-    public Faculty updateFaculty (Long facultyId, Faculty faculty){
-        facultyMap.put(facultyId, faculty);
-        return faculty;
+    public Faculty findFacultyById(Long facultyId){
+        return facultyRepository.findById(facultyId).get();
     }
-    public Faculty deletaFaculty (Long facultyId){
-        return facultyMap.remove(facultyId);
+    public Faculty updateFaculty  (Faculty faculty){
+        return facultyRepository.save(faculty);
     }
-    public Faculty findFaculty (String color){
-        return (Faculty) facultyMap.values().stream().filter(c -> c.getColor() == color);
-        //не понимаю почему не работает поиск
+    public void deleteFaculty(Long facultyId){
+         facultyRepository.deleteById(facultyId);
+    }
+
+    public Collection<Faculty> findFacultyByColor(long color){
+        ArrayList<Faculty> result = new ArrayList<>();
+        for (Faculty faculty : facultyRepository.findAll()) {
+            if (Objects.equals(faculty.getColor(), color)) {
+                result.add(faculty);
+            }
+        }
+        return result;
     }
 
 }

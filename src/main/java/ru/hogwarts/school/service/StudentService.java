@@ -2,31 +2,42 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repositories.StudentRepository;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 @Service
 public class StudentService {
-    private Map<Long, Student> studentMap = new HashMap<>();
-    private long generatedStudensId = 0L;
 
-    public Student createStudent (Student student){
-        studentMap.put(generatedStudensId, student);
-        generatedStudensId ++;
-        return student;
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
-    public Student getStudent (Long studentId){
-        return studentMap.get(studentId);
+
+    private final StudentRepository studentRepository;
+
+
+    public Student addStudent (Student student){
+        return studentRepository.save(student);
     }
-    public Student updateStudent (Long studentId, Student student){
-        studentMap.put(studentId, student);
-        return student;
+    public Student findStudentById(Long studentId){
+        return studentRepository.findById(studentId).get();
     }
-    public Student deletaStudent (Long studentId){
-        return studentMap.remove(studentId);
+    public Student updateStudent (Student student){
+        return studentRepository.save(student);
     }
-    public Student findStudent (int age){
-       return (Student) studentMap.values().stream().filter(a -> a.getAge() == age);
-        //не понимаю почему не работает поиск
+    public void deletaStudent (Long studentId){
+        studentRepository.deleteById(studentId);
+    }
+
+    public Collection<Student> findStudentByAge (int age) {
+        ArrayList<Student> result = new ArrayList<>();
+            for (Student student : studentRepository.findAll()) {
+                if (student.getAge() == age) {
+                    result.add(student);
+                }
+            }
+            return result;
     }
 }
